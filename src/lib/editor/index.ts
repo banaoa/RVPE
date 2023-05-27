@@ -1,10 +1,18 @@
+// prosemirror-model 定义编辑器的文档模型，用来描述编辑器内容的数据结构
 import { Schema, Node as ProsemirrorNode, DOMParser } from "prosemirror-model";
-import { baseKeymap, selectParentNode } from "prosemirror-commands";
+// prosemirror-view: 实现一个在浏览器中将给定编辑器状态显示为可编辑元素，并且处理用户交互的用户界面组件
 import { EditorView } from "prosemirror-view";
+// prosemirror-state: 提供描述编辑器整个状态的数据结构，包括selection(选择)，以及从一个状态到下一个状态的transaction(事务)
 import { Command, EditorState, Transaction } from "prosemirror-state";
+// prosemirror-commands 基本编辑命令
+import { baseKeymap, selectParentNode } from "prosemirror-commands";
+// prosemirror-keymap 键绑定
 import { keymap } from "prosemirror-keymap";
+// prosemirror-dropcursor 拖动光标
 import { dropCursor } from "prosemirror-dropcursor";
+// prosemirror-history 历史记录
 import { history, redo, undo } from "prosemirror-history";
+// prosemirror-inputrules 输入宏
 import { undoInputRule } from "prosemirror-inputrules";
 
 import { Text, Doc, HardBreak, Paragraph, Blockquote, Heading, BaseNode } from "./nodes/";
