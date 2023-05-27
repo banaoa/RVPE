@@ -15,8 +15,11 @@ import { history, redo, undo } from "prosemirror-history";
 // prosemirror-inputrules 输入宏
 import { undoInputRule } from "prosemirror-inputrules";
 
+// 基础的节点
 import { Text, Doc, HardBreak, Paragraph, Blockquote, Heading, BaseNode } from "./nodes/";
+// Marks 通常被用来对 inline content 增加额外的样式和其他信息. 例如加粗、斜体，跟Node的关系类似胳膊和胳膊上的纹身
 import { BaseMark, Bold, Italic, Link } from "./marks/";
+
 import { findSelectedNodeOfType } from "./utils";
 
 export const emptyDocument = {
