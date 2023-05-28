@@ -15,6 +15,15 @@ import { history, redo, undo } from "prosemirror-history";
 // prosemirror-inputrules 输入宏
 import { undoInputRule } from "prosemirror-inputrules";
 
+import { Change, ChangeSet, Span, simplifyChanges } from "prosemirror-changeset";
+
+// @ts-ignore
+const { computeDiff } = ChangeSet
+
+import { recreateTransform } from "@manuscripts/prosemirror-recreate-steps";
+
+
+
 // 基础的节点
 import { Text, Doc, HardBreak, Paragraph, Blockquote, Heading, BaseNode } from "./nodes/";
 // Marks 通常被用来对 inline content 增加额外的样式和其他信息. 例如加粗、斜体，跟Node的关系类似胳膊和胳膊上的纹身
@@ -190,6 +199,29 @@ export default class Editor {
      */
     if (transaction.before.content.findDiffStart(transaction.doc.content) !== null) {
       this.onContentChange(transaction.doc.toJSON() as JSON);
+      const doc1 = transaction.before;
+      const doc2 = transaction.doc;
+
+
+      let tr = recreateTransform(
+        doc1,
+        doc2,
+        true, // Whether step types other than ReplaceStep are allowed.
+        false // Whether diffs in text nodes should cover entire words.
+      )
+
+      console.log(tr)
+
+
+      const diff = computeDiff(transaction.before, transaction.doc, new Change(
+        0,
+        doc1.content.size,
+        0,
+        doc2.content.size,
+        [new Span(doc1.content.size, 0)],
+        [new Span(doc2.content.size, 0)]
+      ))
+      console.log(diff);
     }
 
     /**
