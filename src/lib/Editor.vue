@@ -1,5 +1,6 @@
 <template lang="pug">
 
+button(@click="trTestFn") {{ 测试功能 }}
 .editor
   .editor-content(ref="editorContainer")
 
@@ -18,6 +19,7 @@ export default defineComponent({
   emits: ["update:modelValue", "toolbar"],
   setup(props, { emit }) {
     const editor = new Editor(props.modelValue as JSON);
+    // 当编辑器内容改变时, 更新model
     editor.onContentChange = (newContent: JSON) => {
       emit("update:modelValue", newContent);
     };
@@ -39,8 +41,13 @@ export default defineComponent({
       editor.setContent(newContent as JSON);
     });
 
+    function trTestFn(){
+      editor.trTestFn()
+    }
+
     return {
       editorContainer,
+      trTestFn
     };
   },
 });

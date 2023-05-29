@@ -3,9 +3,12 @@ import { Schema, Node as ProsemirrorNode, DOMParser } from "prosemirror-model";
 // prosemirror-view: 实现一个在浏览器中将给定编辑器状态显示为可编辑元素，并且处理用户交互的用户界面组件
 import { EditorView } from "prosemirror-view";
 // prosemirror-state: 提供描述编辑器整个状态的数据结构，包括selection(选择)，以及从一个状态到下一个状态的transaction(事务)
-import { Command, EditorState, Transaction } from "prosemirror-state";
+import { Command, EditorState, TextSelection, Transaction } from "prosemirror-state";
 // prosemirror-commands 基本编辑命令
 import { baseKeymap, selectParentNode } from "prosemirror-commands";
+
+import { Transform } from "prosemirror-transform";
+
 // prosemirror-keymap 键绑定
 import { keymap } from "prosemirror-keymap";
 // prosemirror-dropcursor 拖动光标
@@ -31,6 +34,9 @@ import { BaseMark, Bold, Italic, Link } from "./marks/";
 
 import { findSelectedNodeOfType } from "./utils";
 
+
+
+// 空的doc, 用作默认值
 export const emptyDocument = {
   type: "doc",
   content: [{
@@ -78,6 +84,28 @@ export default class Editor {
     this.editorState = this.createState(initialContent);
   }
 
+  // 测试方法
+  public trTestFn = ()=>{
+    const editorView = this.editorView;
+    console.log('editorView', editorView);
+
+    // 获取tr, 更新tr
+    /*
+      // EditorState.tr 是一个 getter 函数，每次调用都会 new 一个新的。
+      const state = editorView.state;
+      const tr = state.tr;
+      tr.delete(1, 2)
+      tr.insert(0, editorView.state.doc)
+      // https://prosemirror.xheldon.com/docs/ref/#state.EditorState.apply
+      editorView.updateState(state.apply(tr));
+    */
+    // 这是一个JSON类型的doc, editorView.state.doc.toJSON()
+    // {"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"123123"}]}]}
+    // 这是一个String类型的doc, editorView.state.doc.toString()
+    // doc(paragraph("11111"))
+
+  }
+
   private setCommands(): void {
     if (!this.editorView) throw new Error("rvpe: no editorView");
     const editorView = this.editorView;
@@ -95,6 +123,7 @@ export default class Editor {
       };
     });
   }
+
 
   private get keymap(): any {
     const keymap: any = {};
@@ -192,6 +221,7 @@ export default class Editor {
      * Apply transaction
      */
     const newState = editorView.state.apply(transaction);
+    // 更新内容
     editorView.updateState(newState);
 
     /**
@@ -203,14 +233,14 @@ export default class Editor {
       const doc2 = transaction.doc;
 
 
-      let tr = recreateTransform(
+      let trf = recreateTransform(
         doc1,
         doc2,
         true, // Whether step types other than ReplaceStep are allowed.
         false // Whether diffs in text nodes should cover entire words.
       )
 
-      console.log(tr)
+      // console.log('trf', trf)
 
 
       const diff = computeDiff(transaction.before, transaction.doc, new Change(
@@ -221,7 +251,7 @@ export default class Editor {
         [new Span(doc1.content.size, 0)],
         [new Span(doc2.content.size, 0)]
       ))
-      console.log(diff);
+      // console.log(diff);
     }
 
     /**
@@ -271,6 +301,10 @@ export default class Editor {
   public mount(node: Node): void {
     this.editorView = new EditorView(node, {
       state: this.editorState,
+      // 当用户在编辑器中进行文本输入、删除、粘贴、撤销等操作时，编辑器会将这些操作封装成一个事务，
+      // 并将其传递给 dispatchTransaction 函数。dispatchTransaction 函数会接收这个事务对象，
+      // 并根据其中的内容更新编辑器的状态，包括文本内容、选区、撤销历史等。
+      // 在完成状态更新后，dispatchTransaction 函数还可以触发其他的事件或更新其他的组件，以保持整个应用程序的同步。
       dispatchTransaction: this.dispatchTransaction.bind(this),
     });
 
